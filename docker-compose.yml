@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  web:
+    build: .
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbit_queue
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - rabbit_queue
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_DEFAULT_VHOST: "/"
+networks:
+  rabbit_queue:
+    external:
+      name: rabbit_queue
