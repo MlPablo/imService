@@ -7,7 +7,6 @@ import (
 	"imService/storage"
 	"image/jpeg"
 	"image/png"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -42,7 +41,6 @@ func GetFiles(db storage.Storage) gin.HandlerFunc {
 		quality := c.Query("quality")
 
 		imag, err := db.Get(id, quality)
-		log.Println(err)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return

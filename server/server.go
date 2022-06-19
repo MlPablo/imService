@@ -10,9 +10,9 @@ import (
 
 // Just using static Queue name and path to connect to RabbitMQ (commented path is using for docker-compose)
 const (
-	que = "ImageQue"
-	//path = "amqp://guest:guest@rabbitmq/"
-	path = "amqp://guest:guest@localhost:5672/"
+	que  = "ImageQue"
+	path = "amqp://guest:guest@rabbitmq/"
+	//path = "amqp://guest:guest@localhost:5672/"
 )
 
 // server is struct for server

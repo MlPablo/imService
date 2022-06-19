@@ -26,13 +26,11 @@ func (x RMQProducer) Error(err error) {
 // PublishMessage send a message to queue, if queue not exists, creates it
 func (x RMQProducer) PublishMessage(contentType string, body []byte) {
 	conn, err := amqp.Dial(x.ConnectionString)
-	log.Printf("here 1")
 	x.Error(err)
 	defer conn.Close()
 
 	ch, err := conn.Channel()
 	x.Error(err)
-	log.Printf("here 2")
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
