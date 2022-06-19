@@ -10,13 +10,12 @@ import (
 	"strings"
 )
 
+const maxBytes = 1024 * 1024
+
 // SaveFile get an uploaded image, checks and processes it. If everything ok, adds file to queue by rabbit.RMQProducer
 func SaveFile(q rabbit.RMQProducer, db storage.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var maxBytes int64 = 1024 * 1024 // 1MB
-		var w http.ResponseWriter = c.Writer
-		c.Request.Body = http.MaxBytesReader(w, c.Request.Body, maxBytes)
-
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxBytes)
 		handler, err := c.FormFile("file")
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
