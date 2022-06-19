@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"imService/rabbit"
 	"imService/storage"
+	"log"
 	"net/http"
 )
 
@@ -49,5 +50,5 @@ func (s *server) setRoutes() {
 // Start starts server on port 8080
 func Start() {
 	server := NewServer()
-	server.router.Run(":8080")
+	log.Fatal(server.router.Run(":8080"))
 }
