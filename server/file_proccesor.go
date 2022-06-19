@@ -3,10 +3,8 @@ package server
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"mime/multipart"
-	"os"
 	"strings"
 )
 
@@ -29,18 +27,4 @@ func FileProcessor(header *multipart.FileHeader) ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
-}
-
-// CreateFileInDownloads Create a new file in which image will be copied (dir for file is ...\Downloads\)
-func CreateFileInDownloads(id, quality, ext string) (*os.File, error) {
-	dirname, err := os.UserHomeDir()
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println(dirname)
-	file, err := os.Create(fmt.Sprintf("%s\\Downloads\\id_%s_%s.%s", dirname, id, quality, ext))
-	if err != nil {
-		return nil, err
-	}
-	return file, nil
 }

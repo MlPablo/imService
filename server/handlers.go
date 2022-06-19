@@ -1,11 +1,13 @@
 package server
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"imService/rabbit"
 	"imService/storage"
 	"image/jpeg"
 	"image/png"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -40,23 +42,22 @@ func GetFiles(db storage.Storage) gin.HandlerFunc {
 		quality := c.Query("quality")
 
 		imag, err := db.Get(id, quality)
+		log.Println(err)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
 
-		file, err := CreateFileInDownloads(id, quality, strings.Split(imag.Ext, "/")[1])
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-			return
-		}
-		defer file.Close()
+		filename := fmt.Sprintf("id_%s_%s.%s", id, quality, strings.Split(imag.Ext, "/")[1])
+		c.Writer.Header().Set("Content-Disposition", "attachment; filename="+filename)
+		c.Writer.Header().Set("Content-Type", c.Request.Header.Get("Content-Type"))
+		c.Writer.Header().Set("Content-Length", c.Request.Header.Get("Content-Length"))
 
 		switch imag.Ext {
 		case "image/jpeg":
-			err = jpeg.Encode(file, imag.Image, nil)
+			err = jpeg.Encode(c.Writer, imag.Image, nil)
 		case "image/png":
-			err = png.Encode(file, imag.Image)
+			err = png.Encode(c.Writer, imag.Image)
 		}
 
 		if err != nil {

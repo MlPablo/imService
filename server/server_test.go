@@ -79,7 +79,8 @@ func TestServer_GetFile(t *testing.T) {
 	store := storage.NewStorage()
 	file, _ := os.Open(test_image.PathToTestImage)
 	image, _ := png.Decode(file)
-	store.Add(image, "image/png")
+	err := store.Add(image, "image/png")
+	t.Error(err)
 	r := SetUpRouter()
 	r.GET("/download/:id", server.GetFiles(store))
 
