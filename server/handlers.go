@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// Set image size limit to upload
 const maxBytes = 1024 * 1024
 
 // SaveFile get an uploaded image, checks and processes it. If everything ok, adds file to queue by rabbit.RMQProducer

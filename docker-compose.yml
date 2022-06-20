@@ -9,6 +9,9 @@ services:
       - rabbitmq
     networks:
       - rabbit_queue
+    environment:
+      RABBIT_QUE: "ImageQue"
+      RABBIT_PATH: "amqp://guest:guest@rabbitmq/"
   rabbitmq:
     image: "rabbitmq:3-management"
     hostname: rabbitmq

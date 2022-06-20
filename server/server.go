@@ -2,17 +2,12 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/subosito/gotenv"
 	"imService/rabbit"
 	"imService/storage"
 	"log"
 	"net/http"
-)
-
-// Just using static Queue name and path to connect to RabbitMQ (commented path is using for docker-compose)
-const (
-	que  = "ImageQue"
-	path = "amqp://guest:guest@rabbitmq/"
-	//path = "amqp://guest:guest@localhost:5672/"
+	"os"
 )
 
 // server is struct for server
@@ -25,12 +20,14 @@ type server struct {
 
 // NewServer creates server, setting: routes storage, producer and starts the producer and return the server
 func NewServer() *server {
+	gotenv.Load(".env")
 	s := &server{
 		router:   gin.Default(),
 		store:    storage.NewStorage(),
-		queue:    rabbit.NewProducer(que, path),
-		consumer: rabbit.NewConsumer(que, path),
+		queue:    rabbit.NewProducer(os.Getenv("RABBIT_QUE"), os.Getenv("RABBIT_PATH")),
+		consumer: rabbit.NewConsumer(os.Getenv("RABBIT_QUE"), os.Getenv("RABBIT_PATH")),
 	}
+
 	s.router.LoadHTMLGlob("templates/*.html")
 	s.setRoutes()
 	go s.consumer.Consume(s.store)
