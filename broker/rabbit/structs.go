@@ -1,8 +1,8 @@
 package rabbit
 
 type BrokerRabbit struct {
-	Consumer RMQConsumer
-	Producer RMQProducer
+	Consumer *RMQConsumer
+	Producer *RMQProducer
 }
 
 // RMQProducer struct for producer with Queue name and ConnectionString
@@ -18,20 +18,20 @@ type RMQConsumer struct {
 }
 
 // NewProducer creates new producer
-func NewProducer(queue, ConnectionString string) RMQProducer {
-	return RMQProducer{Queue: queue, ConnectionString: ConnectionString}
+func NewProducer(queue, ConnectionString string) *RMQProducer {
+	return &RMQProducer{Queue: queue, ConnectionString: ConnectionString}
 }
 
 // NewConsumer creates new consumer
-func NewConsumer(queue, ConnectionString string) RMQConsumer {
-	return RMQConsumer{
+func NewConsumer(queue, ConnectionString string) *RMQConsumer {
+	return &RMQConsumer{
 		Queue:            queue,
 		ConnectionString: ConnectionString,
 	}
 }
 
-func NewRabbit(queue, path string) BrokerRabbit {
-	return BrokerRabbit{
+func NewRabbit(queue, path string) *BrokerRabbit {
+	return &BrokerRabbit{
 		NewConsumer(queue, path),
 		NewProducer(queue, path),
 	}

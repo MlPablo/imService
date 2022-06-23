@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	"imService/broker"
 	"imService/storage"
@@ -17,7 +18,7 @@ import (
 const maxBytes = 1024 * 1024
 
 // SaveFile get an uploaded image, checks and processes it. If everything ok, adds file to queue by broker.RMQProducer
-func SaveFile(b broker.Broker, db storage.Storage) gin.HandlerFunc {
+func SaveFile(b broker.Broker) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxBytes)
 		handler, err := c.FormFile("file")
@@ -31,9 +32,11 @@ func SaveFile(b broker.Broker, db storage.Storage) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		b.PublishMessage(http.DetectContentType(bytesImage), bytesImage)
 
-		c.JSON(200, gin.H{"message": "Saved! Your id is " + db.GetCurrentId()})
+		userImageId := uuid.New().String()[:8]
+		b.PublishMessage(http.DetectContentType(bytesImage), userImageId, bytesImage)
+
+		c.JSON(200, gin.H{"message": "Saved! Your id is " + userImageId})
 	}
 }
 

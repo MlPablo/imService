@@ -4,7 +4,6 @@ import (
 	"image/png"
 	"log"
 	"os"
-	"strconv"
 	"testing"
 
 	"github.com/go-playground/assert/v2"
@@ -13,10 +12,10 @@ import (
 )
 
 func CreateStoreWithOneImage() *localdb {
-	store := &localdb{Storage: make(map[fileName]file), CurrentId: 1}
-	file, _ := os.Open(test_image.PathToTestImage)
-	image, _ := png.Decode(file)
-	if err := store.Add(image, "image/png"); err != nil {
+	store := &localdb{Storage: make(map[fileName]file)}
+	fil, _ := os.Open(test_image.PathToTestImage)
+	image, _ := png.Decode(fil)
+	if err := store.Add(image, "image/png", "aabcue", "25"); err != nil {
 		log.Fatal(err)
 	}
 	return store
@@ -25,33 +24,26 @@ func CreateStoreWithOneImage() *localdb {
 func (store *localdb) AddOneTestImage() {
 	file, _ := os.Open(test_image.PathToTestImage)
 	image, _ := png.Decode(file)
-	if err := store.Add(image, "image/png"); err != nil {
+	if err := store.Add(image, "image/png", "aabcue", "25"); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func TestLocaldb_Add(t *testing.T) {
 	store := CreateStoreWithOneImage()
-	for x := 25; x <= 100; x += 25 {
-		_, ok := store.Storage[fileName{Name: "1", Quality: strconv.Itoa(x)}]
-		assert.Equal(t, ok, true)
-	}
-
-	_, ok := store.Storage[fileName{Name: "2", Quality: "25"}]
-	assert.Equal(t, ok, false)
-
-	store.AddOneTestImage()
-	_, ok = store.Storage[fileName{Name: "2", Quality: "25"}]
+	_, ok := store.Storage[fileName{Name: "aabcue", Quality: "25"}]
 	assert.Equal(t, ok, true)
+
+	_, ok = store.Storage[fileName{Name: "2", Quality: "25"}]
+	log.Println(ok)
+	assert.Equal(t, ok, false)
 
 }
 
 func TestLocaldb_Get(t *testing.T) {
 	store := CreateStoreWithOneImage()
-	store.AddOneTestImage()
-	store.AddOneTestImage()
 
-	img, err := store.Get("3", "50")
+	img, err := store.Get("aabcue", "25")
 	assert.Equal(t, err, nil)
 	assert.NotEqual(t, img.Image, nil)
 

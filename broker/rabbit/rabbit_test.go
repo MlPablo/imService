@@ -1,7 +1,6 @@
 package rabbit_test
 
 import (
-	"os"
 	"testing"
 	"time"
 
@@ -12,11 +11,11 @@ import (
 
 // TestQueue checks if Producer and Consumer works properly
 func TestQueue(t *testing.T) {
-	broker := rabbit.NewRabbit("TestQueue", os.Getenv("RABBIT_PATH"))
+	broker := rabbit.NewRabbit("TestQueue", "amqp://guest:guest@localhost:5672/")
 	var counter int
 	go broker.Consumer.ConsumeTest(&counter)
 	for i := 0; i < 100; i++ {
-		go broker.PublishMessage("1", []byte{0})
+		go broker.PublishMessage("1", "abcd", []byte{0})
 	}
 	time.Sleep(time.Second)
 	assert.Equal(t, counter, 100)

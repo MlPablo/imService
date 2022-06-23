@@ -14,7 +14,7 @@ func (x RMQProducer) Error(err error) {
 }
 
 // PublishMessage send a message to queue, if queue not exists, creates it
-func (x BrokerRabbit) PublishMessage(contentType string, body []byte) {
+func (x *BrokerRabbit) PublishMessage(contentType, imageID string, body []byte) {
 	conn, err := amqp.Dial(x.Producer.ConnectionString)
 	x.Producer.Error(err)
 	defer conn.Close()
@@ -32,7 +32,6 @@ func (x BrokerRabbit) PublishMessage(contentType string, body []byte) {
 		nil,
 	)
 	x.Producer.Error(err)
-
 	err = ch.Publish(
 		"",
 		q.Name,
@@ -41,6 +40,7 @@ func (x BrokerRabbit) PublishMessage(contentType string, body []byte) {
 		amqp.Publishing{
 			ContentType: contentType,
 			Body:        body,
+			MessageId:   imageID,
 		})
 	x.Producer.Error(err)
 }

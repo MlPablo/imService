@@ -9,7 +9,7 @@ import (
 
 type Broker interface {
 	Consume(db storage.Storage)
-	PublishMessage(string, []byte)
+	PublishMessage(string, string, []byte)
 }
 
 func NewQue() Broker {

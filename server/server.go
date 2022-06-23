@@ -41,7 +41,7 @@ func (s *server) setRoutes() {
 	s.router.GET("/upload", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "upload.html", nil)
 	})
-	s.router.POST("/upload", SaveFile(s.broker, s.store))
+	s.router.POST("/upload", SaveFile(s.broker))
 	s.router.GET("/download/:id", GetFiles(s.store))
 }
 

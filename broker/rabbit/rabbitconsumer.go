@@ -17,7 +17,7 @@ func (x RMQConsumer) Error(err error) {
 }
 
 // Consume starts consume messages on RMQConsumer. If queue not exists, create new
-func (x BrokerRabbit) Consume(db storage.Storage) {
+func (x *BrokerRabbit) Consume(db storage.Storage) {
 	conn, err := amqp.Dial(x.Consumer.ConnectionString)
 	x.Consumer.Error(err)
 	defer conn.Close()
