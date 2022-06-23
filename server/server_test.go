@@ -15,7 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
 
-	"imService/rabbit"
+	broker2 "imService/broker"
 	"imService/server"
 	"imService/storage"
 	"imService/test_image"
@@ -26,19 +26,19 @@ func SetUpRouter() *gin.Engine {
 	return router
 }
 
-func EmptyTestQueue(db storage.Storage) {
-	consumer := rabbit.NewConsumer("TestImageQue", "amqp://guest:guest@localhost:5672")
-	go consumer.Consume(db)
+func EmptyTestQueue(db storage.Storage) broker2.Broker {
+	broker := broker2.NewQue()
+	go broker.Consume(db)
+	return broker
 }
 
 func TestServer_UploadImage(t *testing.T) {
 	store := storage.NewStorage()
-	EmptyTestQueue(store)
-	queue := rabbit.NewProducer("TestImageQue", "amqp://guest:guest@localhost:5672")
+	broker := EmptyTestQueue(store)
 	pr, pw := io.Pipe()
 	writer := multipart.NewWriter(pw)
 	r := SetUpRouter()
-	r.POST("/upload", server.SaveFile(queue, store))
+	r.POST("/upload", server.SaveFile(broker, store))
 
 	testcases := []struct {
 		name         string

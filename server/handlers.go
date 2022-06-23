@@ -9,15 +9,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"imService/rabbit"
+	"imService/broker"
 	"imService/storage"
 )
 
 // Set image size limit to upload
 const maxBytes = 1024 * 1024
 
-// SaveFile get an uploaded image, checks and processes it. If everything ok, adds file to queue by rabbit.RMQProducer
-func SaveFile(q rabbit.RMQProducer, db storage.Storage) gin.HandlerFunc {
+// SaveFile get an uploaded image, checks and processes it. If everything ok, adds file to queue by broker.RMQProducer
+func SaveFile(b broker.Broker, db storage.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxBytes)
 		handler, err := c.FormFile("file")
@@ -31,7 +31,7 @@ func SaveFile(q rabbit.RMQProducer, db storage.Storage) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		q.PublishMessage(http.DetectContentType(bytesImage), bytesImage)
+		b.PublishMessage(http.DetectContentType(bytesImage), bytesImage)
 
 		c.JSON(200, gin.H{"message": "Saved! Your id is " + db.GetCurrentId()})
 	}

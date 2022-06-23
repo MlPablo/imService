@@ -3,21 +3,19 @@ package server
 import (
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/subosito/gotenv"
 
-	"imService/rabbit"
+	"imService/broker"
 	"imService/storage"
 )
 
 // server is struct for server
 type server struct {
-	router   *gin.Engine
-	store    storage.Storage
-	queue    rabbit.RMQProducer
-	consumer rabbit.RMQConsumer
+	router *gin.Engine
+	store  storage.Storage
+	broker broker.Broker
 }
 
 // NewServer creates server, setting: routes storage, producer and starts the producer and return the server
@@ -26,15 +24,14 @@ func NewServer() *server {
 		panic(err)
 	}
 	s := &server{
-		router:   gin.Default(),
-		store:    storage.NewStorage(),
-		queue:    rabbit.NewProducer(os.Getenv("RABBIT_QUE"), os.Getenv("RABBIT_PATH")),
-		consumer: rabbit.NewConsumer(os.Getenv("RABBIT_QUE"), os.Getenv("RABBIT_PATH")),
+		router: gin.Default(),
+		store:  storage.NewStorage(),
+		broker: broker.NewQue(),
 	}
 
 	s.router.LoadHTMLGlob("templates/*.html")
 	s.setRoutes()
-	go s.consumer.Consume(s.store)
+	go s.broker.Consume(s.store)
 
 	return s
 }
@@ -44,7 +41,7 @@ func (s *server) setRoutes() {
 	s.router.GET("/upload", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "upload.html", nil)
 	})
-	s.router.POST("/upload", SaveFile(s.queue, s.store))
+	s.router.POST("/upload", SaveFile(s.broker, s.store))
 	s.router.GET("/download/:id", GetFiles(s.store))
 }
 

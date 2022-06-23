@@ -9,20 +9,6 @@ import (
 	"imService/storage"
 )
 
-// RMQConsumer struct for Consumer with fields Queue name and ConnectionString
-type RMQConsumer struct {
-	Queue            string
-	ConnectionString string
-}
-
-// NewConsumer creates new consumer
-func NewConsumer(queue, ConnectionString string) RMQConsumer {
-	return RMQConsumer{
-		Queue:            queue,
-		ConnectionString: ConnectionString,
-	}
-}
-
 // Error helper func to log the errors
 func (x RMQConsumer) Error(err error) {
 	if err != nil {
@@ -31,24 +17,24 @@ func (x RMQConsumer) Error(err error) {
 }
 
 // Consume starts consume messages on RMQConsumer. If queue not exists, create new
-func (x RMQConsumer) Consume(db storage.Storage) {
-	conn, err := amqp.Dial(x.ConnectionString)
-	x.Error(err)
+func (x BrokerRabbit) Consume(db storage.Storage) {
+	conn, err := amqp.Dial(x.Consumer.ConnectionString)
+	x.Consumer.Error(err)
 	defer conn.Close()
 
 	ch, err := conn.Channel()
-	x.Error(err)
+	x.Consumer.Error(err)
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		x.Queue,
+		x.Consumer.Queue,
 		false,
 		false,
 		false,
 		false,
 		nil,
 	)
-	x.Error(err)
+	x.Consumer.Error(err)
 
 	imgs, err := ch.Consume(
 		q.Name,
@@ -59,18 +45,18 @@ func (x RMQConsumer) Consume(db storage.Storage) {
 		false,
 		nil,
 	)
-	x.Error(err)
+	x.Consumer.Error(err)
 
 	forever := make(chan bool)
 
 	go func() {
 		for d := range imgs {
-			if err := x.imageHandler(d, db); err != nil {
+			if err := x.Consumer.imageHandler(d, db); err != nil {
 				log.Println(err)
 			}
 		}
 	}()
 
-	fmt.Printf("Started listening for messages on '%s' queue", x.Queue)
+	fmt.Printf("Started listening for messages on '%s' queue", x.Consumer.Queue)
 	<-forever
 }
