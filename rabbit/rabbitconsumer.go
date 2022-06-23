@@ -2,9 +2,11 @@ package rabbit
 
 import (
 	"fmt"
-	"github.com/streadway/amqp"
-	"imService/storage"
 	"log"
+
+	"github.com/streadway/amqp"
+
+	"imService/storage"
 )
 
 // RMQConsumer struct for Consumer with fields Queue name and ConnectionString

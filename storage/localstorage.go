@@ -2,9 +2,10 @@ package storage
 
 import (
 	"errors"
-	"github.com/nfnt/resize"
 	"image"
 	"strconv"
+
+	"github.com/nfnt/resize"
 )
 
 // localdb struct of local DataBase
@@ -29,17 +30,6 @@ func (store *localdb) Add(value image.Image, ext string) error {
 	}
 	store.CurrentId++
 	return nil
-}
-
-// Delete deletes image by id (so deletes 4 images cause one image have fore different qualities)
-func (store *localdb) Delete(str string) error {
-	if _, ok := store.Storage[fileName{Name: str, Quality: "100"}]; ok {
-		for i := 25; i <= 100; i += 25 {
-			delete(store.Storage, fileName{Name: str, Quality: strconv.Itoa(i)})
-		}
-		return nil
-	}
-	return errors.New("not exists")
 }
 
 // Get return file{image, extension} by id and quality

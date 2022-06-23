@@ -5,7 +5,6 @@ import "image"
 // Storage set interface of storages
 type Storage interface {
 	Add(image.Image, string) error
-	Delete(string) error
 	Get(string, string) (file, error)
 	GetCurrentId() string
 }

@@ -1,10 +1,12 @@
 package rabbit_test
 
 import (
-	"github.com/go-playground/assert/v2"
-	"imService/rabbit"
 	"testing"
 	"time"
+
+	"github.com/go-playground/assert/v2"
+
+	"imService/rabbit"
 )
 
 // TestQueue checks if Producer and Consumer works properly

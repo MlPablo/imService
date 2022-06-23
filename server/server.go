@@ -1,13 +1,15 @@
 package server
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/subosito/gotenv"
-	"imService/rabbit"
-	"imService/storage"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/subosito/gotenv"
+
+	"imService/rabbit"
+	"imService/storage"
 )
 
 // server is struct for server
@@ -20,7 +22,9 @@ type server struct {
 
 // NewServer creates server, setting: routes storage, producer and starts the producer and return the server
 func NewServer() *server {
-	gotenv.Load(".env")
+	if err := gotenv.Load(".env"); err != nil {
+		panic(err)
+	}
 	s := &server{
 		router:   gin.Default(),
 		store:    storage.NewStorage(),

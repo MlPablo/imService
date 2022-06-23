@@ -1,28 +1,33 @@
 package storage
 
 import (
-	"fmt"
-	"github.com/go-playground/assert/v2"
-	"imService/test_image"
 	"image/png"
+	"log"
 	"os"
 	"strconv"
 	"testing"
+
+	"github.com/go-playground/assert/v2"
+
+	"imService/test_image"
 )
 
 func CreateStoreWithOneImage() *localdb {
 	store := &localdb{Storage: make(map[fileName]file), CurrentId: 1}
 	file, _ := os.Open(test_image.PathToTestImage)
-	fmt.Println(test_image.PathToTestImage)
 	image, _ := png.Decode(file)
-	store.Add(image, "image/png")
+	if err := store.Add(image, "image/png"); err != nil {
+		log.Fatal(err)
+	}
 	return store
 }
 
 func (store *localdb) AddOneTestImage() {
 	file, _ := os.Open(test_image.PathToTestImage)
 	image, _ := png.Decode(file)
-	store.Add(image, "image/png")
+	if err := store.Add(image, "image/png"); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func TestLocaldb_Add(t *testing.T) {
@@ -62,12 +67,4 @@ func TestLocaldb_Get(t *testing.T) {
 	assert.NotEqual(t, err, nil)
 	assert.Equal(t, img.Image, nil)
 
-}
-
-func TestLocaldb_Delete(t *testing.T) {
-	storage := CreateStoreWithOneImage()
-	storage.Delete("1")
-	img, err := storage.Get("1", "100")
-	assert.Equal(t, img.Image, nil)
-	assert.NotEqual(t, err, nil)
 }

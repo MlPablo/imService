@@ -2,13 +2,15 @@ package server
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"imService/rabbit"
-	"imService/storage"
 	"image/jpeg"
 	"image/png"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+
+	"imService/rabbit"
+	"imService/storage"
 )
 
 // Set image size limit to upload

@@ -1,8 +1,9 @@
 package rabbit
 
 import (
-	"github.com/streadway/amqp"
 	"log"
+
+	"github.com/streadway/amqp"
 )
 
 // RMQProducer struct for producer with Queue name and ConnectionString

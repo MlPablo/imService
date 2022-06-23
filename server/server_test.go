@@ -2,19 +2,23 @@ package server_test
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/assert/v2"
-	"imService/rabbit"
-	"imService/server"
-	"imService/storage"
-	"imService/test_image"
 	"image/png"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/assert/v2"
+
+	"imService/rabbit"
+	"imService/server"
+	"imService/storage"
+	"imService/test_image"
 )
 
 func SetUpRouter() *gin.Engine {
@@ -44,7 +48,7 @@ func TestServer_UploadImage(t *testing.T) {
 		{
 			name:         "valid file",
 			expectedCode: 200,
-			file:         "ILTQq.png",
+			file:         test_image.PathToTestImage,
 		},
 		{
 			name:         "invalid file type",
@@ -76,13 +80,6 @@ func TestServer_UploadImage(t *testing.T) {
 }
 
 func TestServer_GetFile(t *testing.T) {
-	store := storage.NewStorage()
-	file, _ := os.Open(test_image.PathToTestImage)
-	image, _ := png.Decode(file)
-	err := store.Add(image, "image/png")
-	t.Error(err)
-	r := SetUpRouter()
-	r.GET("/download/:id", server.GetFiles(store))
 
 	testcases := []struct {
 		name         string
@@ -120,6 +117,16 @@ func TestServer_GetFile(t *testing.T) {
 			expectedCode: 400,
 		},
 	}
+
+	store := storage.NewStorage()
+	file, _ := os.Open(test_image.PathToTestImage)
+	image, _ := png.Decode(file)
+	if err := store.Add(image, "image/png"); err != nil {
+		log.Fatal(err)
+	}
+	r := SetUpRouter()
+	r.GET("/download/:id", server.GetFiles(store))
+
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
 			req, _ := http.NewRequest("GET", fmt.Sprintf("/download/%s", tc.id), nil)
@@ -130,13 +137,8 @@ func TestServer_GetFile(t *testing.T) {
 			r.ServeHTTP(w, req)
 
 			assert.Equal(t, w.Code, tc.expectedCode)
-			dir, _ := os.UserHomeDir()
-			_, err := os.Open(fmt.Sprintf("%s\\Downloads\\id_%s_%s.%s", dir, tc.id, tc.quality, "png"))
-			if tc.downloaded {
-				assert.Equal(t, err, nil)
-			} else {
-				assert.NotEqual(t, err, nil)
-			}
+			contain := strings.Contains(w.Header().Get("Content-Disposition"), fmt.Sprintf("id_%s_%s.%s", tc.id, tc.quality, "png"))
+			assert.Equal(t, contain, tc.downloaded)
 
 		})
 	}
